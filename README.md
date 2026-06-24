@@ -1,8 +1,8 @@
 # 💰 Expense Tracker
 
-A modern, full-featured expense tracking application built with **ASP.NET Core 6.0 MVC** and **SQLite**. Track your daily expenses, visualize spending patterns with interactive charts, and manage your finances efficiently.
+A modern, full-featured expense tracking application built with **ASP.NET Core 10.0 MVC** and **SQLite**. Track your daily expenses, visualize spending patterns with interactive charts, and manage your finances efficiently.
 
-![.NET](https://img.shields.io/badge/.NET-6.0-512BD4?style=flat&logo=dotnet)
+![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat&logo=dotnet)
 ![SQLite](https://img.shields.io/badge/SQLite-3.0-003B57?style=flat&logo=sqlite)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=flat&logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -39,7 +39,7 @@ A modern, full-featured expense tracking application built with **ASP.NET Core 6
 
 Before you begin, ensure you have the following installed:
 
-- [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or later
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later
 - A code editor (Visual Studio, VS Code, or Rider)
 - Git (for cloning the repository)
 
@@ -160,22 +160,22 @@ ExpenseTracker/
 
 ## 🛠️ Technologies Used
 
-- **Backend**: ASP.NET Core 6.0 MVC
+- **Backend**: ASP.NET Core 10.0 MVC
 - **Database**: SQLite with Entity Framework Core
 - **Frontend**: 
   - HTML5, CSS3, JavaScript
   - Bootstrap 5.3
   - Font Awesome 6.4
   - Chart.js 4.3
-- **ORM**: Entity Framework Core 6.0
+- **ORM**: Entity Framework Core 10.0
 - **Validation**: Data Annotations & jQuery Validation
 
 ## 📦 NuGet Packages
 
 ```xml
-<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.25" />
-<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.25" />
-<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.25" />
+<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9" />
+<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9" />
 ```
 
 ## 🎨 Categories
@@ -297,7 +297,7 @@ dotnet publish -c Release -r linux-x64 --self-contained
 dotnet publish -c Release -r osx-x64 --self-contained
 ```
 
-Published files will be in `bin/Release/net6.0/{runtime}/publish/`
+Published files will be in `bin/Release/net10.0/{runtime}/publish/`
 
 ## 🤝 Contributing
 
