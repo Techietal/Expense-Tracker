@@ -24,13 +24,13 @@ A modern, full-featured expense tracking application built with **ASP.NET Core 1
 ## 📸 Screenshots
 
 ### Dashboard
-<img width="1919" height="1079" alt="Screenshot 2025-10-24 103400" src="https://github.com/user-attachments/assets/f274130e-770c-4043-8fb7-cea122245921" />
+<img alt="Dashboard" src="docs/dashboard.png" />
 
 ### Expense List
-<img width="1919" height="920" alt="Screenshot 2025-10-24 103338" src="https://github.com/user-attachments/assets/ce5214c9-df7b-46af-b3aa-20079e26b0fa" />
+<img alt="Expense List" src="docs/all_expenses.png" />
 
 ### Add Expense
-<img width="1919" height="1079" alt="Screenshot 2025-10-24 103419" src="https://github.com/user-attachments/assets/9361901c-e703-4cfe-90a4-8334ad2434b3" />
+<img alt="Add Expense" src="docs/add_expense.png" />
 
 
 ## 🚀 Getting Started
