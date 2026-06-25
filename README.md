@@ -1,9 +1,9 @@
 # 💰 Expense Tracker
 
-A modern, full-featured expense tracking application built with **ASP.NET Core 10.0 MVC** and **SQLite**. Track your daily expenses, visualize spending patterns with interactive charts, and manage your finances efficiently.
+A modern, full-featured expense tracking application built with **ASP.NET Core 10.0 MVC** and **PostgreSQL**. Track your daily expenses, visualize spending patterns with interactive charts, and manage your finances efficiently.
 
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?style=flat&logo=dotnet)
-![SQLite](https://img.shields.io/badge/SQLite-3.0-003B57?style=flat&logo=sqlite)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952B3?style=flat&logo=bootstrap)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
@@ -11,6 +11,7 @@ A modern, full-featured expense tracking application built with **ASP.NET Core 1
 ## ✨ Features
 
 - ✅ **Add, Edit, Delete Expenses** - Complete CRUD operations
+- 🔐 **User Authentication** - Register and login with username/password
 - 📊 **Interactive Dashboard** - Visualize spending with Chart.js
 - 🏷️ **Category Management** - 10 predefined categories for expenses
 - 🔍 **Advanced Filtering** - Filter by category, date range
@@ -19,7 +20,7 @@ A modern, full-featured expense tracking application built with **ASP.NET Core 1
 - 📉 **6-Month Trend Analysis** - Line charts showing spending patterns
 - ✔️ **Data Validation** - Built-in form validation and error handling
 - 🎨 **Modern UI** - Responsive design with Bootstrap 5
-- 💾 **Local Database** - SQLite for easy, portable data storage
+- 🗄️ **PostgreSQL Database** - Powered by Npgsql.EntityFrameworkCore.PostgreSQL
 
 ## 📸 Screenshots
 
@@ -42,18 +43,26 @@ Before you begin, ensure you have the following installed:
 - [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) or later
 - A code editor (Visual Studio, VS Code, or Rider)
 - Git (for cloning the repository)
+- A PostgreSQL database (local or cloud, e.g. Neon)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
    git clone https://github.com/Techietal/Expense-Tracker.git
-   cd expense-tracker
+   cd ExpenseTracker
    ```
 
-2. **Navigate to the project directory**
+2. **Set the connection string**
+
+   Use the environment variable:
    ```bash
-   cd ExpenseTracker
+   export ConnectionStrings__DefaultConnection="Host=localhost;Database=expensetracker;Username=postgres;Password=your_password"
+   ```
+
+   On Windows PowerShell:
+   ```powershell
+   $env:ConnectionStrings__DefaultConnection="Host=localhost;Database=expensetracker;Username=postgres;Password=your_password"
    ```
 
 3. **Restore dependencies**
@@ -77,28 +86,35 @@ Before you begin, ensure you have the following installed:
    - HTTPS: `https://localhost:7001`
    - HTTP: `http://localhost:5001`
 
-The database will be created automatically on first run!
+The database schema will be created automatically on first run!
 
 ## 🗄️ Database
 
-The application uses **SQLite** as a local, file-based database:
+The application uses **PostgreSQL**:
 
-- **Database File**: `ExpenseTracker.db` (created in project root)
-- **No Installation Required**: SQLite is embedded
-- **Automatic Creation**: Database and tables are created on first run
-- **Portable**: Simply copy the `.db` file to backup your data
+- **Provider**: Npgsql.EntityFrameworkCore.PostgreSQL
+- **Connection String**: Read from `ConnectionStrings__DefaultConnection` environment variable or `appsettings.json`
+- **Automatic Creation**: Tables are created on first run via `EnsureCreated()`
+- **Cloud Ready**: Works with Neon PostgreSQL on Render Free without a persistent disk
 
 ### Database Schema
 
 ```sql
+Users
+├── Id (INTEGER, Primary Key, Auto-increment)
+├── Username (TEXT, Required, Unique)
+├── PasswordHash (TEXT, Required)
+└── CreatedAt (TIMESTAMP, Auto-generated)
+
 Expenses
 ├── Id (INTEGER, Primary Key, Auto-increment)
+├── UserId (INTEGER, Foreign Key)
 ├── Title (TEXT, Required)
 ├── Amount (REAL, Required)
 ├── Category (TEXT, Required)
-├── Date (TEXT, Required)
+├── Date (TIMESTAMP, Required)
 ├── Description (TEXT, Optional)
-└── CreatedAt (TEXT, Auto-generated)
+└── CreatedAt (TIMESTAMP, Auto-generated)
 ```
 
 ## 📁 Project Structure
@@ -106,28 +122,52 @@ Expenses
 ```
 ExpenseTracker/
 ├── Controllers/
-│   └── ExpensesController.cs       # Handles all expense operations
+│   ├── AuthController.cs            # Handles register/login/logout
+│   └── ExpensesController.cs        # Handles all expense operations
 ├── Data/
-│   └── ExpenseDbContext.cs         # Entity Framework DB Context
+│   └── ExpenseDbContext.cs          # Entity Framework DB Context
 ├── Models/
-│   └── Expense.cs                  # Data models and validation
+│   ├── Expense.cs                   # Expense data model and validation
+│   └── User.cs                      # User model, register/login view models
 ├── Views/
+│   ├── Auth/
+│   │   ├── Login.cshtml             # Login page
+│   │   └── Register.cshtml          # Register page
 │   ├── Expenses/
-│   │   ├── Index.cshtml            # List all expenses
-│   │   ├── Create.cshtml           # Add new expense
-│   │   ├── Edit.cshtml             # Edit expense
-│   │   ├── Delete.cshtml           # Delete confirmation
-│   │   └── Dashboard.cshtml        # Analytics dashboard
+│   │   ├── Index.cshtml             # List all expenses
+│   │   ├── Create.cshtml            # Add new expense
+│   │   ├── Edit.cshtml              # Edit expense
+│   │   ├── Delete.cshtml            # Delete confirmation
+│   │   └── Dashboard.cshtml         # Analytics dashboard
 │   └── Shared/
-│       ├── _Layout.cshtml          # Main layout
+│       ├── _Layout.cshtml           # Main layout
 │       └── _ValidationScriptsPartial.cshtml
-├── wwwroot/                        # Static files (CSS, JS, images)
-├── Program.cs                      # Application entry point
-├── appsettings.json               # Configuration
-└── ExpenseTracker.csproj          # Project file
+├── wwwroot/                         # Static files (CSS, JS, images)
+├── Program.cs                       # Application entry point
+├── appsettings.json                 # Configuration
+├── Dockerfile                       # Docker image
+├── DEPLOYMENT.md                    # Deployment guide
+└── ExpenseTracker.csproj            # Project file
 ```
 
 ## 🎯 Usage
+
+### Register
+
+1. Open the app and click **"Don't have an account? Register"**
+2. Enter a username (3-50 characters)
+3. Enter a password with at least:
+   - 8 characters
+   - One uppercase letter
+   - One lowercase letter
+   - One number
+   - One special character
+4. Confirm the password and click **"Register"**
+
+### Login
+
+1. Enter your username and password
+2. Click **"Login"**
 
 ### Adding an Expense
 
@@ -146,7 +186,6 @@ ExpenseTracker/
 2. View:
    - Monthly total expenses
    - Transaction count
-   - Daily average
    - Category-wise pie chart
    - 6-month spending trend
 
@@ -161,7 +200,8 @@ ExpenseTracker/
 ## 🛠️ Technologies Used
 
 - **Backend**: ASP.NET Core 10.0 MVC
-- **Database**: SQLite with Entity Framework Core
+- **Database**: PostgreSQL with Entity Framework Core
+- **Authentication**: ASP.NET Core Cookie Authentication with PBKDF2 password hashing
 - **Frontend**: 
   - HTML5, CSS3, JavaScript
   - Bootstrap 5.3
@@ -173,7 +213,7 @@ ExpenseTracker/
 ## 📦 NuGet Packages
 
 ```xml
-<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
+<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
 <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.9" />
 <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9" />
 ```
@@ -195,16 +235,22 @@ The application includes 10 predefined expense categories:
 
 ## 🔧 Configuration
 
-### Changing Database Location
+### Connection String
 
-Edit `appsettings.json`:
+Set the `ConnectionStrings__DefaultConnection` environment variable, or edit `appsettings.json` for local development only:
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Data Source=C:/MyData/ExpenseTracker.db"
+    "DefaultConnection": "Host=localhost;Database=expensetracker;Username=postgres;Password=your_password"
   }
 }
+```
+
+For Neon on Render:
+
+```env
+ConnectionStrings__DefaultConnection=Host=YOUR_NEON_HOST.neon.tech;Database=neondb;Username=YOUR_USER;Password=YOUR_PASSWORD;SSL Mode=Require;Trust Server Certificate=true
 ```
 
 ### Changing Port
@@ -217,11 +263,10 @@ dotnet run --urls="http://localhost:5002;https://localhost:7002"
 
 ## 🐛 Troubleshooting
 
-### Database Not Created
+### Database Connection Issues
 ```bash
-# Delete the database file and restart
-rm ExpenseTracker.db
-dotnet run
+# Verify the connection string environment variable is set
+echo $ConnectionStrings__DefaultConnection
 ```
 
 ### Port Already in Use
@@ -281,8 +326,22 @@ Built-in validation attributes:
 - `[Range]` - Validates numeric ranges
 - `[StringLength]` - Limits text length
 - `[DataType]` - Specifies data format
+- `[Compare]` - Compares two properties (password confirmation)
 
 ## 🚀 Deployment
+
+### Docker
+
+A `Dockerfile` is included. Build and run locally:
+
+```bash
+docker build -t expense-tracker .
+docker run -e ConnectionStrings__DefaultConnection="Host=..." -p 8080:8080 expense-tracker
+```
+
+### Render + Neon PostgreSQL
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed Render deployment instructions using Neon PostgreSQL.
 
 ### Publish for Production
 
