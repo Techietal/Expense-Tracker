@@ -13,11 +13,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 ENV ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
-ENV ConnectionStrings__DefaultConnection="Data Source=/data/ExpenseTracker.db"
-
-RUN mkdir -p /data
 
 COPY --from=build /app/publish .
 

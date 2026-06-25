@@ -20,10 +20,13 @@ namespace ExpenseTracker.Data
                 .HasIndex(u => u.Username)
                 .IsUnique();
 
-            // Seed some initial categories data
             modelBuilder.Entity<Expense>()
                 .Property(e => e.CreatedAt)
-                .HasDefaultValueSql("datetime('now')");
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            modelBuilder.Entity<User>()
+                .Property(u => u.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
 }

@@ -11,9 +11,8 @@ obj/
 *.cache
 
 ExpenseTracker.db
+*.db
 *.db-shm
 *.db-wal
 
-Dockerfile
-docker-compose.yml
-DOCKER_README.md
+docker-compose.override.yml
