@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using ExpenseTracker.Data;
 using ExpenseTracker.Models;
+using System.Security.Claims;
 
 namespace ExpenseTracker.Controllers
 {
+    [Authorize]
     public class ExpensesController : Controller
     {
         private readonly ExpenseDbContext _context;
@@ -20,6 +23,11 @@ namespace ExpenseTracker.Controllers
             _context = context;
         }
 
+        private int GetUserId()
+        {
+            return int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        }
+
         // GET: Expenses
         public async Task<IActionResult> Index(string category, DateTime? startDate, DateTime? endDate)
         {
@@ -28,7 +36,8 @@ namespace ExpenseTracker.Controllers
             ViewBag.StartDate = startDate;
             ViewBag.EndDate = endDate;
 
-            var query = _context.Expenses.AsQueryable();
+            var userId = GetUserId();
+            var query = _context.Expenses.Where(e => e.UserId == userId).AsQueryable();
 
             if (!string.IsNullOrEmpty(category))
             {
@@ -57,10 +66,11 @@ namespace ExpenseTracker.Controllers
         {
             var currentMonth = DateTime.Now.Month;
             var currentYear = DateTime.Now.Year;
+            var userId = GetUserId();
 
             // Load data into memory first, then perform aggregations
             var monthlyExpenses = await _context.Expenses
-                .Where(e => e.Date.Month == currentMonth && e.Date.Year == currentYear)
+                .Where(e => e.UserId == userId && e.Date.Month == currentMonth && e.Date.Year == currentYear)
                 .ToListAsync();
 
             var categorySummary = monthlyExpenses
@@ -81,7 +91,7 @@ namespace ExpenseTracker.Controllers
             // Last 6 months data - load into memory first
             var sixMonthsAgo = DateTime.Now.AddMonths(-6);
             var allExpenses = await _context.Expenses
-                .Where(e => e.Date >= sixMonthsAgo)
+                .Where(e => e.UserId == userId && e.Date >= sixMonthsAgo)
                 .ToListAsync();
             
             var monthlySummary = allExpenses
@@ -113,6 +123,7 @@ namespace ExpenseTracker.Controllers
         {
             if (ModelState.IsValid)
             {
+                expense.UserId = GetUserId();
                 _context.Add(expense);
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Expense added successfully!";
@@ -130,7 +141,8 @@ namespace ExpenseTracker.Controllers
                 return NotFound();
             }
 
-            var expense = await _context.Expenses.FindAsync(id);
+            var userId = GetUserId();
+            var expense = await _context.Expenses.FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
             if (expense == null)
             {
                 return NotFound();
@@ -148,6 +160,14 @@ namespace ExpenseTracker.Controllers
             {
                 return NotFound();
             }
+
+            var userId = GetUserId();
+            if (!await _context.Expenses.AnyAsync(e => e.Id == id && e.UserId == userId))
+            {
+                return NotFound();
+            }
+
+            expense.UserId = userId;
 
             if (ModelState.IsValid)
             {
@@ -182,8 +202,9 @@ namespace ExpenseTracker.Controllers
                 return NotFound();
             }
 
+            var userId = GetUserId();
             var expense = await _context.Expenses
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .FirstOrDefaultAsync(m => m.Id == id && m.UserId == userId);
             if (expense == null)
             {
                 return NotFound();
@@ -197,7 +218,8 @@ namespace ExpenseTracker.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var expense = await _context.Expenses.FindAsync(id);
+            var userId = GetUserId();
+            var expense = await _context.Expenses.FirstOrDefaultAsync(e => e.Id == id && e.UserId == userId);
             if (expense != null)
             {
                 _context.Expenses.Remove(expense);
